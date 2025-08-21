@@ -1,0 +1,238 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ImagifyPro Suite - Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: #f4f7fb;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      height: 60px;
+      background: linear-gradient(90deg,#1a73e8,#155fc1);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      font-size: 18px;
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    header .actions i {
+      margin: 0 8px;
+      cursor: pointer;
+      transition: transform 0.2s, color 0.3s;
+    }
+    header .actions i:hover { color: #ffdf5d; transform: scale(1.2); }.container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+.sidebar {
+  width: 240px;
+  background: #fff;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+  transition: width 0.3s;
+}
+.sidebar button {
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 14px 20px;
+  font-size: 15px;
+  cursor: pointer;
+  color: #333;
+  display: flex;
+  align-items: center;
+  transition: background 0.3s, color 0.3s;
+}
+.sidebar button i { margin-right: 10px; }
+.sidebar button:hover {
+  background: #1a73e8;
+  color: #fff;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.toolbar input[type="text"] {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  outline: none;
+  min-width: 200px;
+}
+.progress-bar {
+  height: 8px;
+  background: #ddd;
+  border-radius: 4px;
+  flex: 0.3;
+  overflow: hidden;
+  min-width: 100px;
+}
+.progress-bar span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg,#1a73e8,#42a5f5);
+  transition: width 0.3s;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+.card {
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+.card img {
+  max-width: 100%;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.card .actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.card button {
+  background: #1a73e8;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s;
+}
+.card button:hover { background: #155fc1; }
+
+/* Modal cropper */
+.modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: 0.3s;
+  z-index: 2000;
+}
+.modal.active { visibility: visible; opacity: 1; }
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 95%;
+  max-height: 95%;
+  overflow: auto;
+}
+
+.dark-mode { background: #121212; color: #eee; }
+.dark-mode .sidebar { background: #1f1f1f; border-color: #444; }
+.dark-mode .card { background: #1f1f1f; }
+.dark-mode header { background: linear-gradient(90deg,#333,#000); }
+
+/* Responsive */
+@media(max-width: 768px){
+  .sidebar { width: 60px; }
+  .sidebar button span { display: none; }
+  .sidebar button i { margin: 0; }
+}
+@media(max-width: 600px){
+  .toolbar { flex-direction: column; align-items: stretch; }
+  .progress-bar { flex: 1; }
+}
+
+  </style>
+</head>
+<body>
+  <header>
+    <div>ðŸ“„ ImagifyPro Suite</div>
+    <div class="actions">
+      <i class="fas fa-upload" title="Upload"></i>
+      <i class="fas fa-file-export" title="Export PDF"></i>
+      <i class="fas fa-moon" id="modeToggle" title="Toggle Dark Mode"></i>
+    </div>
+  </header>
+  <div class="container">
+    <div class="sidebar">
+      <button><i class="fas fa-folder-open"></i><span> Upload Images</span></button>
+      <button><i class="fas fa-crop-alt"></i><span> Auto-Crop All</span></button>
+      <button><i class="fas fa-search"></i><span> OCR & Search</span></button>
+      <button><i class="fas fa-file-pdf"></i><span> Export PDF</span></button>
+      <button><i class="fas fa-file-lines"></i><span> Export Text</span></button>
+    </div>
+    <div class="main">
+      <div class="toolbar">
+        <input type="text" placeholder="Search text in images...">
+        <div class="progress-bar"><span id="progress"></span></div>
+      </div>
+      <div class="grid" id="imageGrid">
+        <!-- image cards will go here dynamically -->
+      </div>
+    </div>
+  </div>  <!-- Crop Modal -->  <div class="modal" id="cropModal">
+    <div class="modal-content">
+      <img id="cropImage" src="">
+      <div style="margin-top:10px;text-align:right;">
+        <button id="cropSave">Save</button>
+        <button onclick="closeCrop()">Cancel</button>
+      </div>
+    </div>
+  </div>  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>  <script>
+    const modeToggle=document.getElementById('modeToggle');
+    modeToggle.addEventListener('click',()=>{
+      document.body.classList.toggle('dark-mode');
+    });
+    function openCrop(src){
+      document.getElementById('cropImage').src=src;
+      document.getElementById('cropModal').classList.add('active');
+    }
+    function closeCrop(){
+      document.getElementById('cropModal').classList.remove('active');
+    }
+  </script></body>
+</html>
